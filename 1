@@ -1,0 +1,916 @@
+<!DOCTYPE html>
+<html lang="kk" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CaffeineTrack & Energy Sync - Студенттік Энергия Мониторингі</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#fdf8f6',
+                            100: '#f2e8e5',
+                            500: '#d97706', // Amber accent for energy/caffeine
+                            800: '#78350f',
+                            900: '#451a03',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .glow-amber {
+            box-shadow: 0 0 15px rgba(217, 119, 6, 0.4);
+        }
+        .glow-purple {
+            box-shadow: 0 0 15px rgba(168, 85, 247, 0.4);
+        }
+    </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen font-sans flex flex-col justify-between">
+
+    <!-- Жоғарғы Навигациялық Панель -->
+    <header class="border-b border-slate-800 bg-slate-900/80 backdrop-blur sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="p-2 bg-amber-500/10 text-amber-500 rounded-lg border border-amber-500/30 glow-amber">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                    </svg>
+                </div>
+                <div>
+                    <span class="text-xl font-extrabold tracking-tight text-white">Caffeine<span class="text-amber-500">Track</span></span>
+                    <span class="text-xs block text-slate-400 font-medium">Energy Sync for Students</span>
+                </div>
+            </div>
+            <nav class="hidden md:flex space-x-6 text-sm font-medium">
+                <a href="#dashboard" class="text-slate-300 hover:text-amber-500 transition-colors">Панель</a>
+                <a href="#project-info" class="text-slate-300 hover:text-amber-500 transition-colors">Жоба Туралы</a>
+                <a href="#roadmap" class="text-slate-300 hover:text-amber-500 transition-colors">Қадамдар</a>
+            </nav>
+            <div class="flex items-center space-x-2 text-xs bg-amber-500/10 text-amber-400 border border-amber-500/20 px-3 py-1.5 rounded-full font-semibold">
+                <span class="relative flex h-2 w-2">
+                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
+                    <span class="relative inline-flex rounded-full h-2 w-2 bg-amber-500"></span>
+                </span>
+                <span>Vibe Coding Белсенді</span>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-grow space-y-12">
+        
+        <!-- Негізгі Банер -->
+        <section class="relative rounded-3xl overflow-hidden border border-slate-800 bg-gradient-to-br from-slate-900 to-slate-950 p-6 sm:p-10">
+            <div class="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(217,119,6,0.1),transparent)] pointer-events-none"></div>
+            <div class="max-w-3xl">
+                <span class="px-3 py-1 text-xs font-semibold text-amber-500 bg-amber-500/10 border border-amber-500/20 rounded-full uppercase tracking-wider">Цифрлық шешім концептісі</span>
+                <h1 class="text-3xl sm:text-5xl font-black text-white mt-4 tracking-tight leading-none">
+                    Студенттік энергия, кофеин мен <span class="text-amber-500">тауринді бақылау</span>
+                </h1>
+                <p class="mt-4 text-slate-400 text-base sm:text-lg leading-relaxed">
+                    Қандағы кофеин ($t_{1/2} = 5$ сағ) және таурин ($t_{1/2} = 1.5$ сағ) концентрацияларын динамикалық түрде модельдеу арқылы энергия мен ұйқы теңгерімін сақтаңыз.
+                </p>
+                <div class="mt-6 flex flex-wrap gap-4">
+                    <a href="#dashboard" class="px-5 py-3 bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold rounded-xl transition-all shadow-lg hover:shadow-amber-500/20">Прототипті тексеру</a>
+                    <a href="#project-info" class="px-5 py-3 bg-slate-800 hover:bg-slate-700 text-white font-semibold rounded-xl transition-all border border-slate-700">Мақсат пен Міндеттер</a>
+                </div>
+            </div>
+        </section>
+
+        <!-- ИНТЕРАКТИВТІ ПАНЕЛЬ (Dashboard) -->
+        <section id="dashboard" class="scroll-mt-20">
+            <div class="flex items-center space-x-3 mb-6">
+                <span class="p-1.5 bg-amber-500/10 text-amber-500 rounded-lg">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 002 2h2a2 2 0 002-2" /></svg>
+                </span>
+                <h2 class="text-2xl font-bold text-white">Интерактивті симулятор мен өнімділік панелі</h2>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <!-- 1. Кофеин мен Таурин Енгізу Панелі -->
+                <div class="bg-slate-900/50 border border-slate-800 rounded-2xl p-6 backdrop-blur">
+                    <h3 class="text-lg font-bold text-white mb-4 flex items-center justify-between">
+                        <span>1. Сусын түрін таңдаңыз</span>
+                        <span class="text-xs text-slate-500">Концентрация негізі</span>
+                    </h3>
+                    
+                    <!-- Тез қосу шаблондары (Басқан кезде калькуляторға мәндерді автоматты түрде жүктейді) -->
+                    <div class="grid grid-cols-2 gap-2 mb-4">
+                        <button onclick="loadPreset('Қара шай', 20, 0, 250)" class="p-2.5 bg-slate-850/80 hover:bg-slate-800 border border-slate-800 hover:border-amber-500/30 rounded-xl transition-all text-left text-xs">
+                            <span class="block text-base">🍵 Қара шай</span>
+                            <span class="text-slate-400 text-[10px] block mt-0.5">20 мг / 100 мл</span>
+                        </button>
+                        
+                        <button onclick="loadPreset('Американо', 40, 0, 300)" class="p-2.5 bg-slate-850/80 hover:bg-slate-800 border border-slate-800 hover:border-amber-500/30 rounded-xl transition-all text-left text-xs">
+                            <span class="block text-base">🥤 Американо</span>
+                            <span class="text-slate-400 text-[10px] block mt-0.5">40 мг / 100 мл</span>
+                        </button>
+
+                        <button onclick="loadPreset('Энергетик', 32, 400, 500)" class="p-2.5 bg-slate-850/80 hover:bg-slate-800 border border-slate-800 hover:border-purple-500/30 rounded-xl transition-all text-left text-xs border-purple-950/40">
+                            <span class="block text-base text-purple-300">⚡ Энергетик</span>
+                            <span class="text-purple-400 text-[10px] block mt-0.5">32 мг каф + 400 мг таур</span>
+                        </button>
+
+                        <button onclick="loadPreset('Кока-Кола', 9.6, 0, 1000)" class="p-2.5 bg-slate-850/80 hover:bg-slate-800 border border-slate-800 hover:border-amber-500/30 rounded-xl transition-all text-left text-xs">
+                            <span class="block text-base">🥤 Кока-Кола</span>
+                            <span class="text-slate-400 text-[10px] block mt-0.5">9.6 мг / 100 мл</span>
+                        </button>
+                    </div>
+
+                    <div class="border-t border-slate-800 my-4 pt-4">
+                        <h4 class="text-sm font-bold text-slate-300 mb-3">Сусын мөлшерін және көлемін есептеу</h4>
+                        <div class="space-y-4">
+                            <!-- Сусын атауы -->
+                            <div>
+                                <label class="block text-xs text-slate-400 mb-1">Сусын атауы / түрі</label>
+                                <input type="text" id="custom-name" value="Қара шай" placeholder="Мысалы: Капучино, Red Bull, т.б." class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-white placeholder-slate-500 focus:outline-none focus:border-amber-500 transition-colors text-sm">
+                            </div>
+
+                            <!-- КӨЛЕМ СЛАЙДЕРІ (МЛ) -->
+                            <div>
+                                <div class="flex justify-between items-center text-xs text-slate-400 mb-1">
+                                    <span>Ішілген сусын көлемі:</span>
+                                    <span id="volume-preview" class="text-amber-500 font-bold text-sm">250 мл</span>
+                                </div>
+                                <input type="range" id="custom-volume" min="50" max="1000" value="250" step="50" oninput="calculateLiveValues()" class="w-full accent-amber-500 cursor-pointer">
+                                <div class="flex justify-between text-[9px] text-slate-500">
+                                    <span>50 мл</span>
+                                    <span>250 мл (Стакан)</span>
+                                    <span>500 мл (Банка)</span>
+                                    <span>1000 мл (1л)</span>
+                                </div>
+                            </div>
+
+                            <!-- Концентрация орнату -->
+                            <div class="grid grid-cols-2 gap-2">
+                                <div>
+                                    <label class="block text-[10px] text-slate-400 mb-1">Кофеин (100мл-де, мг)</label>
+                                    <input type="number" id="custom-caffeine-conc" value="20" step="1" oninput="calculateLiveValues()" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-amber-500 transition-colors">
+                                </div>
+                                <div>
+                                    <label class="block text-[10px] text-slate-400 mb-1">Таурин (100мл-де, мг)</label>
+                                    <input type="number" id="custom-taurine-conc" value="0" step="10" oninput="calculateLiveValues()" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-purple-500 transition-colors">
+                                </div>
+                            </div>
+
+                            <!-- Жиынтық автоматты есептеуді алдын ала көрсету -->
+                            <div class="p-3 bg-slate-950 rounded-xl border border-slate-800 flex justify-between items-center text-xs">
+                                <span class="text-slate-400">Алдын ала есептелген:</span>
+                                <div class="text-right">
+                                    <span id="live-calc-caffeine" class="text-amber-500 font-bold block">50 мг кофеин</span>
+                                    <span id="live-calc-taurine" class="text-purple-400 font-bold block">0 мг таурин</span>
+                                </div>
+                            </div>
+
+                            <!-- Уақыты -->
+                            <div>
+                                <label class="block text-xs text-slate-400 mb-1">Ішілген уақыты</label>
+                                <select id="custom-time" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-amber-500 transition-colors">
+                                    <option value="0">Қазір ғана</option>
+                                    <option value="1">1 сағат бұрын</option>
+                                    <option value="2">2 сағат бұрын</option>
+                                    <option value="4">4 сағат бұрын</option>
+                                </select>
+                            </div>
+
+                            <button onclick="addCustomDrink()" class="w-full py-2.5 bg-gradient-to-r from-amber-500 to-purple-600 hover:from-amber-600 hover:to-purple-700 text-slate-950 font-bold rounded-xl transition-all text-sm">
+                                Сусынды тізімге қосу
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 2. Негізгі Мониторинг Және Слайдер -->
+                <div class="bg-slate-900/50 border border-slate-800 rounded-2xl p-6 backdrop-blur lg:col-span-2 flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center justify-between mb-4">
+                            <h3 class="text-lg font-bold text-white">2. Ағзадағы белсенді заттар деңгейі</h3>
+                            <button onclick="resetData()" class="text-xs text-rose-400 hover:text-rose-300 transition-colors flex items-center space-x-1">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                                <span>Тазалау</span>
+                            </button>
+                        </div>
+
+                        <!-- Индикаторлар мен Статистика -->
+                        <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
+                            <div class="bg-slate-950 p-4 rounded-xl border border-slate-800/80">
+                                <span class="block text-xs text-slate-400">Жалпы Кофеин</span>
+                                <span id="stat-total-caffeine" class="text-xl font-black text-white">0 мг</span>
+                            </div>
+                            <div class="bg-slate-950 p-4 rounded-xl border border-slate-800/80">
+                                <span class="block text-xs text-slate-400">Белсенді Кофеин</span>
+                                <span id="stat-active-caffeine" class="text-xl font-black text-amber-500">0 мг</span>
+                            </div>
+                            <div class="bg-slate-950 p-4 rounded-xl border border-slate-800/80">
+                                <span class="block text-xs text-slate-400">Белсенді Таурин</span>
+                                <span id="stat-active-taurine" class="text-xl font-black text-purple-400">0 мг</span>
+                            </div>
+                            <div class="bg-slate-950 p-4 rounded-xl border border-slate-800/80">
+                                <span class="block text-xs text-slate-400">Ұйқыға дайындық</span>
+                                <span id="stat-sleep-status" class="text-xs font-bold text-emerald-400 mt-1 block">Қауіпсіз</span>
+                            </div>
+                        </div>
+
+                        <!-- График орны -->
+                        <div class="h-64 w-full bg-slate-950 rounded-xl p-3 border border-slate-800 mb-6">
+                            <canvas id="caffeineChart"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Уақытты модельдеу слайдері -->
+                    <div class="bg-slate-950 p-4 rounded-xl border border-slate-800">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-xs font-bold uppercase text-slate-400">Уақыт симуляторы</span>
+                            <span id="simulator-time-label" class="text-sm font-bold text-amber-500">Ағымдағы уақыт (0 сағат өткен соң)</span>
+                        </div>
+                        <input type="range" id="time-slider" min="0" max="15" value="0" step="1" oninput="updateSimulation()" class="w-full accent-amber-500 cursor-pointer">
+                        <div class="flex justify-between text-[10px] text-slate-500 mt-1">
+                            <span>Қазір</span>
+                            <span>+3с</span>
+                            <span>+6с (Жартылай ыдырау)</span>
+                            <span>+9с</span>
+                            <span>+12с (Сабақ аяқталу)</span>
+                            <span>+15с (Ұйқы уақыты)</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Сусындар Тарихы және Энергияны Болжау хабарламалары -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mt-8">
+                <div class="bg-slate-900/40 border border-slate-800 rounded-xl p-5">
+                    <h4 class="text-sm font-bold text-white mb-3 flex items-center space-x-2">
+                        <span class="w-2 h-2 rounded-full bg-amber-500"></span>
+                        <span>Белсенді қолданылғандар тізімі</span>
+                    </h4>
+                    <div id="drinks-log" class="space-y-2 max-h-44 overflow-y-auto pr-2 text-xs">
+                        <p class="text-slate-500 text-center py-4">Тізім бос. Көлемін енгізіп, кофеин мен таурин деңгейін есептеңіз.</p>
+                    </div>
+                </div>
+
+                <div class="bg-slate-900/40 border border-slate-800 rounded-xl p-5 flex flex-col justify-between">
+                    <div>
+                        <h4 class="text-sm font-bold text-white mb-3 flex items-center space-x-2">
+                            <span class="w-2 h-2 rounded-full bg-purple-500"></span>
+                            <span>Кофеин мен тауриннің синергиялық болжамы</span>
+                        </h4>
+                        <p id="caffeine-recommendation" class="text-xs text-slate-300 leading-relaxed">
+                            Қазіргі деңгей қалыпты. Таурин мен кофеинді бірге қабылдау жүректің жиырылуын жиілетіп, уақытша жоғары сергектік береді. Бірақ кешкі уақытта бұл комбинация ұйқының фазаларын бұзып, келесі күні қатты шаршауға (crash) алып келеді.
+                        </p>
+                    </div>
+                    <div class="mt-4 pt-3 border-t border-slate-800/80 flex items-center justify-between text-[10px]">
+                        <span class="text-slate-400">Формулалар:</span>
+                        <div class="text-right font-mono text-[9px]">
+                            <span class="text-amber-500 block">Каф: C(t) = C0 * 0.5^(t/5)</span>
+                            <span class="text-purple-400 block">Таур: T(t) = T0 * 0.5^(t/1.5)</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ЖОБА ТУРАЛЫ: МАҚСАТ, МІНДЕТТЕР, ӘДІСТЕМЕ (Қолмен өзгерту мүмкіндігімен) -->
+        <section id="project-info" class="scroll-mt-20 border-t border-slate-800 pt-12">
+            <div class="flex flex-col sm:flex-row items-center justify-between mb-10 gap-4">
+                <div class="text-center sm:text-left">
+                    <span class="text-xs font-bold uppercase text-amber-500 tracking-wider">Жобалық жоспар</span>
+                    <h2 class="text-3xl font-black text-white mt-1">Цифрлық өнімнің негіздемесі</h2>
+                    <p class="text-slate-400 text-sm mt-1">
+                        Бұл құралдың деректерін, мақсат-міндеттерін тікелей төмендегі батырма арқылы өзгерте аласыз.
+                    </p>
+                </div>
+                
+                <!-- РЕДАКЦИЯЛАУ БАТЫРМАСЫ -->
+                <div>
+                    <button id="edit-info-btn" onclick="toggleEditInfoMode()" class="px-5 py-2.5 bg-slate-800 hover:bg-slate-700 text-amber-500 border border-amber-500/30 rounded-xl text-sm font-bold flex items-center space-x-2 transition-all">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                        </svg>
+                        <span id="edit-btn-text">Деректерді Өңдеу (Редакциялау)</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- ИНТЕРАКТИВТІ КӨРСЕТУ / ӨҢДЕУ БЛОГЫ -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                
+                <!-- 1. Мақсат пен Міндеттер -->
+                <div class="bg-gradient-to-br from-slate-900 to-slate-950 border border-slate-800 rounded-2xl p-6 relative">
+                    <div class="absolute top-4 right-4 text-slate-800 font-mono text-5xl font-extrabold select-none">01</div>
+                    
+                    <!-- Көру режимі: Мақсаты -->
+                    <div id="view-section-1">
+                        <h3 class="text-xl font-bold text-white mb-4 flex items-center space-x-2">
+                            <span class="w-2 h-2 bg-amber-500 rounded-full"></span>
+                            <span>Жобаның Мақсаты</span>
+                        </h3>
+                        <p id="disp-goal" class="text-slate-300 text-sm leading-relaxed mb-6 whitespace-pre-line">
+                            Студенттердің күнделікті сабақ пен өнімділік барысында тұтынатын кофеин мен тауринін дербес бақылау. Бұл ретте ағзаның энергетикалық ресурстарын сарқып алмауын (Energy Crash) және орталық жүйке жүйесінің шамадан тыс жүктелуін бақылау басты мақсат болык табылады.
+                        </p>
+
+                        <h3 class="text-lg font-bold text-white mb-3">Қарсы Тұратын Міндеттеріміз:</h3>
+                        <ul id="disp-objectives" class="space-y-3 text-sm text-slate-400">
+                            <!-- JS арқылы динамикалық түрде салынады -->
+                        </ul>
+                    </div>
+
+                    <!-- Өңдеу режимі: Мақсаты мен Міндеттері -->
+                    <div id="edit-section-1" class="hidden space-y-4">
+                        <h3 class="text-lg font-bold text-amber-500 flex items-center space-x-2">
+                            <span>Мақсат пен міндеттерді редакциялау</span>
+                        </h3>
+                        <div>
+                            <label class="block text-xs text-slate-400 mb-1 font-semibold">Жоба мақсаты</label>
+                            <textarea id="input-goal" rows="4" class="w-full bg-slate-950 border border-slate-700 rounded-xl p-3 text-sm text-slate-200 focus:outline-none focus:border-amber-500"></textarea>
+                        </div>
+                        <div>
+                            <label class="block text-xs text-slate-400 mb-1 font-semibold">Міндет 1</label>
+                            <input type="text" id="input-obj-1" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-sm text-slate-200 focus:outline-none focus:border-amber-500">
+                        </div>
+                        <div>
+                            <label class="block text-xs text-slate-400 mb-1 font-semibold">Міндет 2</label>
+                            <input type="text" id="input-obj-2" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-sm text-slate-200 focus:outline-none focus:border-amber-500">
+                        </div>
+                        <div>
+                            <label class="block text-xs text-slate-400 mb-1 font-semibold">Міндет 3</label>
+                            <input type="text" id="input-obj-3" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-sm text-slate-200 focus:outline-none focus:border-amber-500">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 2. Өзектілігі -->
+                <div class="bg-gradient-to-br from-slate-900 to-slate-950 border border-slate-800 rounded-2xl p-6 relative">
+                    <div class="absolute top-4 right-4 text-slate-800 font-mono text-5xl font-extrabold select-none">02</div>
+                    
+                    <!-- Көру режимі: Өзектілігі -->
+                    <div id="view-section-2">
+                        <h3 class="text-xl font-bold text-white mb-4 flex items-center space-x-2">
+                            <span class="w-2 h-2 bg-amber-500 rounded-full"></span>
+                            <span>Неліктен бұл өзекті?</span>
+                        </h3>
+                        <p id="disp-relevance-text" class="text-slate-300 text-sm leading-relaxed mb-4 whitespace-pre-line">
+                            Студенттердің 75%-дан астамы тек емтихан сессиясы кезінде ғана емес, сонымен бірге күнделікті сабақ уақытында, таңғы ерте лекцияларда, ұзақ зертханалық жұмыстар мен үй тапсырмаларын орындау кезінде сергек болу мақсатында кофеинді (кофе, энергетикалық сусындар, қою шай) шамадан тыс тұтынады. Бұл қысқа мерзімде зейінді арттырғанымен, ұзақ мерзімде денсаулыққа мынадай қауіптер төндіреді:
+                        </p>
+                        <div class="grid grid-cols-2 gap-3 mb-4">
+                            <div class="p-3 bg-slate-950/60 rounded-xl border border-slate-800">
+                                <span id="disp-badge-1-title" class="block text-xs text-rose-400 font-bold uppercase">Ұйқы деструкциясы</span>
+                                <span id="disp-badge-1-desc" class="text-[11px] text-slate-400 block mt-1">Кофеин аденозин рецепторларын бұғаттап, ұйқының сапасын бұзады.</span>
+                            </div>
+                            <div class="p-3 bg-slate-950/60 rounded-xl border border-slate-800">
+                                <span id="disp-badge-2-title" class="block text-xs text-rose-400 font-bold uppercase">Жүрекке жүктеме</span>
+                                <span id="disp-badge-2-desc" class="text-[11px] text-slate-400 block mt-1">Таурин мен кофеиннің қосындысы қан қысымын көтеріп, тахикардия тудыруы мүмкін.</span>
+                            </div>
+                        </div>
+                        <p id="disp-relevance-footer" class="text-slate-400 text-xs leading-relaxed">
+                            Біздің құрал әрбір студентке өзінің "қауіпсіз тұтыну терезесін" есептеуге мүмкіндік береді — бұл уақыттан кейін энергетик немесе кофе ішу ұйқыға зиян тигізбейді.
+                        </p>
+                    </div>
+
+                    <!-- Өңдеу режимі: Өзектілігі -->
+                    <div id="edit-section-2" class="hidden space-y-4">
+                        <h3 class="text-lg font-bold text-amber-500 flex items-center space-x-2">
+                            <span>Өзектілікті редакциялау</span>
+                        </h3>
+                        <div>
+                            <label class="block text-xs text-slate-400 mb-1 font-semibold">Өзектілік сипаттамасы</label>
+                            <textarea id="input-relevance-text" rows="4" class="w-full bg-slate-950 border border-slate-700 rounded-xl p-3 text-sm text-slate-200 focus:outline-none focus:border-amber-500"></textarea>
+                        </div>
+                        <div class="grid grid-cols-2 gap-3">
+                            <div class="space-y-2">
+                                <label class="block text-xs text-rose-400 font-bold uppercase">1-Қауіп Тақырыбы</label>
+                                <input type="text" id="input-badge-1-title" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-1.5 text-xs text-slate-200 focus:outline-none focus:border-rose-400">
+                                <textarea id="input-badge-1-desc" rows="2" class="w-full bg-slate-950 border border-slate-700 rounded-xl p-2 text-[11px] text-slate-300 focus:outline-none focus:border-rose-400"></textarea>
+                            </div>
+                            <div class="space-y-2">
+                                <label class="block text-xs text-rose-400 font-bold uppercase">2-Қауіп Тақырыбы</label>
+                                <input type="text" id="input-badge-2-title" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-1.5 text-xs text-slate-200 focus:outline-none focus:border-rose-400">
+                                <textarea id="input-badge-2-desc" rows="2" class="w-full bg-slate-950 border border-slate-700 rounded-xl p-2 text-[11px] text-slate-300 focus:outline-none focus:border-rose-400"></textarea>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-xs text-slate-400 mb-1 font-semibold">Қорытынды сөз</label>
+                            <input type="text" id="input-relevance-footer" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-sm text-slate-200 focus:outline-none focus:border-amber-500">
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Сақтау / Бас тарту батырмалары (Өңдеу режимінде белсенді болады) -->
+            <div id="editor-actions" class="hidden flex justify-end space-x-3 mt-6">
+                <button onclick="cancelInfoEdit()" class="px-5 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-sm font-semibold transition-all">
+                    Бас тарту
+                </button>
+                <button onclick="saveInfoEdit()" class="px-6 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-sm font-bold shadow-lg shadow-emerald-500/20 transition-all">
+                    Өзгерістерді Сақтау
+                </button>
+            </div>
+        </section>
+
+        <!-- ЖОБА ҚАДАМДАРЫ (Roadmap) -->
+        <section id="roadmap" class="scroll-mt-20 border-t border-slate-800 pt-12 pb-6">
+            <div class="text-center max-w-2xl mx-auto mb-10">
+                <span class="text-xs font-bold uppercase text-amber-500 tracking-wider">Жоспарлау стратегиясы</span>
+                <h2 class="text-3xl font-black text-white mt-2">Қосымшаны дамыту жол картасы</h2>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                <!-- Карта 1 -->
+                <div class="bg-slate-900/30 border border-slate-800/80 rounded-2xl p-5 relative overflow-hidden group">
+                    <div class="h-1 w-full bg-amber-500 absolute top-0 left-0"></div>
+                    <span class="text-xs font-bold text-amber-500 block mb-2">1-ҚАДАМ: Идея және теория</span>
+                    <h4 class="text-base font-bold text-white mb-2">Ғылыми Зерттеу</h4>
+                    <p class="text-slate-400 text-xs leading-relaxed">
+                        Кофеин мен таурин метаболизмі мен олардың ағзадағы жартылай шығарылу кезеңінің адам физиологиясына әсерін медициналық дереккөздер негізінде саралау.
+                    </p>
+                </div>
+
+                <!-- Карта 2 -->
+                <div class="bg-slate-900/30 border border-slate-800/80 rounded-2xl p-5 relative overflow-hidden">
+                    <div class="h-1 w-full bg-amber-500/80 absolute top-0 left-0"></div>
+                    <span class="text-xs font-bold text-amber-500/80 block mb-2">2-ҚАДАМ: Интерактивті дизайн</span>
+                    <h4 class="text-base font-bold text-white mb-2">UI/UX Прототип</h4>
+                    <p class="text-slate-400 text-xs leading-relaxed">
+                        Пайдаланушыға ыңғайлы, түнгі уақытта зерттеу жасауға қолайлы Dark Mode дизайны мен қос компонентті енгізу панелін құру.
+                    </p>
+                </div>
+
+                <!-- Карта 3 -->
+                <div class="bg-slate-900/30 border border-slate-800/80 rounded-2xl p-5 relative overflow-hidden">
+                    <div class="h-1 w-full bg-amber-500/60 absolute top-0 left-0"></div>
+                    <span class="text-xs font-bold text-amber-500/60 block mb-2">3-ҚАДАМ: Кодтау мен алгоритм</span>
+                    <h4 class="text-base font-bold text-white mb-2">Vibe Coding</h4>
+                    <p class="text-slate-400 text-xs leading-relaxed">
+                        Кофеин мен тауриннің өзара әсер ету формулаларын жазып, нақты уақыт режимінде интерактивті график арқылы нәтижені көрсету.
+                    </p>
+                </div>
+
+                <!-- Карта 4 -->
+                <div class="bg-slate-900/30 border border-slate-800/80 rounded-2xl p-5 relative overflow-hidden">
+                    <div class="h-1 w-full bg-emerald-500 absolute top-0 left-0"></div>
+                    <span class="text-xs font-bold text-emerald-400 block mb-2">4-ҚАДАМ: Іске қосу</span>
+                    <h4 class="text-base font-bold text-white mb-2">MVP Және Сынақ</h4>
+                    <p class="text-slate-400 text-xs leading-relaxed">
+                        Алғашқы нұсқаны студенттер арасында сынақтан өткізіп, олардың кері байланысы негізінде мобильді қосымшаға айналдыру.
+                    </p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Төменгі Панель -->
+    <footer class="border-t border-slate-800 bg-slate-950 py-6">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-500">
+            <p>© 2026 CaffeineTrack & Energy Sync. Студенттердің инновациялық жобалық шешімі.</p>
+            <div class="flex space-x-4 mt-2 sm:mt-0">
+                <span class="hover:text-amber-500 cursor-pointer">Пайдалану шарттары</span>
+                <span class="hover:text-amber-500 cursor-pointer">Құпиялылық саясаты</span>
+            </div>
+        </div>
+    </footer>
+
+    <!-- JS Логикасы мен Интерактивтілігі -->
+    <script>
+        // Кофеин мен Таурин метаболизмі деректері мен күйі
+        let drinksLog = [];
+        let totalCaffeine = 0;
+        let chartInstance = null;
+
+        // Жартылай шығарылу кезеңдері (сағатпен)
+        const CAFFEINE_HALF_LIFE = 5;
+        const TAURINE_HALF_LIFE = 1.5; // Таурин ағзадан тез шығады
+
+        // Жоба туралы мәліметтердің динамикалық сақтау қоры
+        let projectData = {
+            goal: "Студенттердің күнделікті сабақ пен өнімділік барысында тұтынатын кофеин мен тауринін дербес бақылау. Бұл ретте ағзаның энергетикалық ресурстарын сарқып алмауын (Energy Crash) және орталық жүйке жүйесінің шамадан тыс жүктелуін бақылау басты мақсат болып табылады.",
+            objectives: [
+                "<strong>Қос өлшемді модель құру:</strong> Тек кофеин емес, энергетиктердің негізгі компоненті болып табылатын тауринді де бақылауға қосу.",
+                "<strong>Синергияны талдау:</strong> Кофеин мен тауриннің бірлескен әсерін және олардың уақыт бойынша ағзадан шығу жылдамдығын ($t_{1/2}$) есептеу.",
+                "<strong>Түсінікті визуализация:</strong> Күрделі биохимиялық дереккөздерді қарапайым интерактивті графиктер мен ұйқы болжамдары арқылы студентке ұсыну."
+            ],
+            relevanceText: "Студенттердің 75%-дан астамы тек емтихан сессиясы кезінде ғана емес, сонымен бірге күнделікті сабақ уақытында, таңғы ерте лекцияларда, ұзақ зертханалық жұмыстар мен үй тапсырмаларын орындау кезінде сергек болу мақсатында кофеинді (кофе, энергетикалық сусындар, қою шай) шамадан тыс тұтынады. Бұл қысқа мерзімде зейінді арттырғанымен, ұзақ мерзімде денсаулыққа мынадай қауіптер төндіреді:",
+            badge1Title: "Ұйқы деструкциясы",
+            badge1Desc: "Кофеин аденозин рецепторларын бұғаттап, ұйқының сапасын бұзады.",
+            badge2Title: "Жүрекке жүктеме",
+            badge2Desc: "Таурин мен кофеиннің қосындысы қан қысымын көтеріп, тахикардия тудыруы мүмкін.",
+            relevanceFooter: "Біздің құрал әрбір студентке өзінің \"қауіпсіз тұтыну терезесін\" есептеуге мүмкіндік береді — бұл уақыттан кейін энергетик немесе кофе ішу ұйқыға зиян тигізбейді."
+        };
+
+        let isEditingInfo = false;
+
+        // Жоба туралы мәліметтерді интерфейске шығару
+        function renderProjectInfo() {
+            document.getElementById('disp-goal').innerText = projectData.goal;
+            
+            const objContainer = document.getElementById('disp-objectives');
+            objContainer.innerHTML = '';
+            projectData.objectives.forEach(obj => {
+                const li = document.createElement('li');
+                li.className = 'flex items-start space-x-2';
+                li.innerHTML = `<span class="text-amber-500 mt-1">✔</span><span>${obj}</span>`;
+                objContainer.appendChild(li);
+            });
+
+            document.getElementById('disp-relevance-text').innerText = projectData.relevanceText;
+            document.getElementById('disp-badge-1-title').innerText = projectData.badge1Title;
+            document.getElementById('disp-badge-1-desc').innerText = projectData.badge1Desc;
+            document.getElementById('disp-badge-2-title').innerText = projectData.badge2Title;
+            document.getElementById('disp-badge-2-desc').innerText = projectData.badge2Desc;
+            document.getElementById('disp-relevance-footer').innerText = projectData.relevanceFooter;
+        }
+
+        // Редакциялау режимін қосу / өшіру
+        function toggleEditInfoMode() {
+            isEditingInfo = !isEditingInfo;
+            
+            const view1 = document.getElementById('view-section-1');
+            const edit1 = document.getElementById('edit-section-1');
+            const view2 = document.getElementById('view-section-2');
+            const edit2 = document.getElementById('edit-section-2');
+            const actions = document.getElementById('editor-actions');
+            const btnText = document.getElementById('edit-btn-text');
+
+            if (isEditingInfo) {
+                // Input-терді ағымдағы мәндермен толтыру
+                document.getElementById('input-goal').value = projectData.goal;
+                document.getElementById('input-obj-1').value = projectData.objectives[0].replace('<strong>Қос өлшемді модель құру:</strong> ', '');
+                document.getElementById('input-obj-2').value = projectData.objectives[1].replace('<strong>Синергияны талдау:</strong> ', '');
+                document.getElementById('input-obj-3').value = projectData.objectives[2].replace('<strong>Түсінікті визуализация:</strong> ', '');
+                
+                document.getElementById('input-relevance-text').value = projectData.relevanceText;
+                document.getElementById('input-badge-1-title').value = projectData.badge1Title;
+                document.getElementById('input-badge-1-desc').value = projectData.badge1Desc;
+                document.getElementById('input-badge-2-title').value = projectData.badge2Title;
+                document.getElementById('input-badge-2-desc').value = projectData.badge2Desc;
+                document.getElementById('input-relevance-footer').value = projectData.relevanceFooter;
+
+                // Блоктарды ауыстыру
+                view1.classList.add('hidden');
+                edit1.classList.remove('hidden');
+                view2.classList.add('hidden');
+                edit2.classList.remove('hidden');
+                actions.classList.remove('hidden');
+                btnText.innerText = "Өңдеу режимін тоқтату";
+            } else {
+                cancelInfoEdit();
+            }
+        }
+
+        // Өзгерістерді сақтау
+        function saveInfoEdit() {
+            projectData.goal = document.getElementById('input-goal').value;
+            projectData.objectives = [
+                `<strong>Қос өлшемді модель құру:</strong> ${document.getElementById('input-obj-1').value}`,
+                `<strong>Синергияны талдау:</strong> ${document.getElementById('input-obj-2').value}`,
+                `<strong>Түсінікті визуализация:</strong> ${document.getElementById('input-obj-3').value}`
+            ];
+            projectData.relevanceText = document.getElementById('input-relevance-text').value;
+            projectData.badge1Title = document.getElementById('input-badge-1-title').value;
+            projectData.badge1Desc = document.getElementById('input-badge-1-desc').value;
+            projectData.badge2Title = document.getElementById('input-badge-2-title').value;
+            projectData.badge2Desc = document.getElementById('input-badge-2-desc').value;
+            projectData.relevanceFooter = document.getElementById('input-relevance-footer').value;
+
+            isEditingInfo = false;
+            
+            // Интерфейсті жаңарту
+            renderProjectInfo();
+
+            // Блоктарды бастапқы қалпына келтіру
+            document.getElementById('view-section-1').classList.remove('hidden');
+            document.getElementById('edit-section-1').classList.add('hidden');
+            document.getElementById('view-section-2').classList.remove('hidden');
+            document.getElementById('edit-section-2').classList.add('hidden');
+            document.getElementById('editor-actions').classList.add('hidden');
+            document.getElementById('edit-btn-text').innerText = "Деректерді Өңдеу (Редакциялау)";
+        }
+
+        // Сақтаудан бас тарту
+        function cancelInfoEdit() {
+            isEditingInfo = false;
+            document.getElementById('view-section-1').classList.remove('hidden');
+            document.getElementById('edit-section-1').classList.add('hidden');
+            document.getElementById('view-section-2').classList.remove('hidden');
+            document.getElementById('edit-section-2').classList.add('hidden');
+            document.getElementById('editor-actions').classList.add('hidden');
+            document.getElementById('edit-btn-text').innerText = "Деректерді Өңдеу (Редакциялау)";
+        }
+
+        // Көлем негізінде есептеулер мен жаңартулар (Live Preview)
+        function calculateLiveValues() {
+            const vol = parseInt(document.getElementById('custom-volume').value);
+            const caffConc = parseFloat(document.getElementById('custom-caffeine-conc').value) || 0;
+            const taurConc = parseFloat(document.getElementById('custom-taurine-conc').value) || 0;
+
+            document.getElementById('volume-preview').innerText = `${vol} мл`;
+
+            // Жиынтық мөлшерді есептеу: (концентрация * көлем) / 100
+            const calculatedCaff = Math.round((caffConc * vol) / 100);
+            const calculatedTaur = Math.round((taurConc * vol) / 100);
+
+            document.getElementById('live-calc-caffeine').innerText = `${calculatedCaff} мг кофеин`;
+            document.getElementById('live-calc-taurine').innerText = `${calculatedTaur} мг таурин`;
+
+            return { caffeine: calculatedCaff, taurine: calculatedTaur, volume: vol };
+        }
+
+        // Тез жүктеу шаблоны
+        function loadPreset(name, caffConc, taurConc, defaultVolume) {
+            document.getElementById('custom-name').value = name;
+            document.getElementById('custom-caffeine-conc').value = caffConc;
+            document.getElementById('custom-taurine-conc').value = taurConc;
+            document.getElementById('custom-volume').value = defaultVolume;
+
+            calculateLiveValues();
+        }
+
+        // Тұтынылған сусынды қосу
+        function addCustomDrink() {
+            const nameInput = document.getElementById('custom-name');
+            const timeInput = document.getElementById('custom-time');
+            
+            const name = nameInput.value.trim() || "Таңдамалы сусын";
+            const timeAgo = parseInt(timeInput.value);
+
+            // Динамикалық есептелген мәндерді алу
+            const calculation = calculateLiveValues();
+
+            if (calculation.caffeine === 0 && calculation.taurine === 0) {
+                alertBox("Кофеин немесе Таурин концентрациясын дұрыс енгізіңіз!");
+                return;
+            }
+
+            // Тізімге қосу
+            const finalNameWithVol = `${name} (${calculation.volume} мл)`;
+            logDrink(finalNameWithVol, calculation.caffeine, calculation.taurine, timeAgo);
+        }
+
+        function logDrink(name, caffeine, taurine, hoursAgo) {
+            const timestamp = new Date();
+            timestamp.setHours(timestamp.getHours() - hoursAgo);
+            
+            drinksLog.push({
+                name: name,
+                caffeine: caffeine,
+                taurine: taurine,
+                timestamp: timestamp,
+                id: Date.now() + Math.random().toString(36).substr(2, 5)
+            });
+
+            updateUI();
+        }
+
+        // Деректерді тазалау
+        function resetData() {
+            drinksLog = [];
+            document.getElementById('time-slider').value = 0;
+            updateUI();
+        }
+
+        // Қателік немесе хабарландыру терезесі
+        function alertBox(message) {
+            const modal = document.createElement('div');
+            modal.className = 'fixed inset-0 flex items-center justify-center bg-black/70 z-50 p-4';
+            modal.innerHTML = `
+                <div class="bg-slate-900 border border-slate-700 p-6 rounded-2xl max-w-sm w-full text-center">
+                    <p class="text-white text-sm font-semibold mb-4">${message}</p>
+                    <button onclick="this.parentElement.parentElement.remove()" class="px-4 py-2 bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold rounded-xl text-xs">
+                        Жарайды
+                    </button>
+                </div>
+            `;
+            document.body.appendChild(modal);
+        }
+
+        // Тізімді және интерфейсті жаңарту
+        function updateUI() {
+            const logContainer = document.getElementById('drinks-log');
+            
+            if (drinksLog.length === 0) {
+                logContainer.innerHTML = '<p class="text-slate-500 text-center py-4">Тізім бос. Кофеин мен таурин деңгейін есептеу үшін сусын қосыңыз.</p>';
+                document.getElementById('stat-total-caffeine').innerText = '0 мг';
+                document.getElementById('stat-active-caffeine').innerText = '0 мг';
+                document.getElementById('stat-active-taurine').innerText = '0 мг';
+                document.getElementById('stat-sleep-status').innerText = 'Керемет';
+                document.getElementById('stat-sleep-status').className = 'text-xs font-bold text-emerald-400 mt-1 block';
+                updateChart([0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]);
+                return;
+            }
+
+            // Жалпы кофеин
+            totalCaffeine = drinksLog.reduce((sum, drink) => sum + drink.caffeine, 0);
+            document.getElementById('stat-total-caffeine').innerText = `${totalCaffeine} мг`;
+
+            // Тізімді шығару
+            logContainer.innerHTML = '';
+            drinksLog.forEach(drink => {
+                const timeString = drink.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                const item = document.createElement('div');
+                item.className = 'flex items-center justify-between p-2 bg-slate-950/80 border border-slate-800 rounded-lg';
+                item.innerHTML = `
+                    <div>
+                        <span class="font-semibold text-slate-200 block">${drink.name}</span>
+                        <span class="text-[10px] text-slate-500">${timeString} уақытында ішілді</span>
+                    </div>
+                    <div class="flex items-center space-x-3">
+                        <div class="text-right">
+                            <span class="text-amber-500 font-bold block text-[11px]">${drink.caffeine} мг каф.</span>
+                            ${drink.taurine > 0 ? `<span class="text-purple-400 font-bold text-[10px] block">${drink.taurine} мг таур.</span>` : ''}
+                        </div>
+                        <button onclick="deleteDrink('${drink.id}')" class="text-rose-500 hover:text-rose-400 transition-colors">✕</button>
+                    </div>
+                `;
+                logContainer.appendChild(item);
+            });
+
+            updateSimulation();
+        }
+
+        // Сусынды тізімнен жою
+        function deleteDrink(id) {
+            drinksLog = drinksLog.filter(drink => drink.id !== id);
+            updateUI();
+        }
+
+        // Симуляциялық уақытты жаңарту
+        function updateSimulation() {
+            const sliderValue = parseInt(document.getElementById('time-slider').value);
+            document.getElementById('simulator-time-label').innerText = sliderValue === 0 
+                ? 'Ағымдағы уақыт (Қазір)' 
+                : `+${sliderValue} сағат өткеннен кейін`;
+
+            // Болашақ нүктелердегі кофеин мен тауринді есептеу
+            const caffeinePoints = [];
+            const taurinePoints = [];
+
+            for (let h = 0; h <= 15; h++) {
+                let activeCaffeine = 0;
+                let activeTaurine = 0;
+
+                drinksLog.forEach(drink => {
+                    const now = new Date();
+                    const hoursSinceConsumption = (now - drink.timestamp) / (1000 * 60 * 60) + h;
+                    if (hoursSinceConsumption >= 0) {
+                        // Кофеиннің экспоненциалды ыдырауы
+                        activeCaffeine += drink.caffeine * Math.pow(0.5, hoursSinceConsumption / CAFFEINE_HALF_LIFE);
+                        // 🔀 Тауриннің экспоненциалды ыдырауы
+                        activeTaurine += drink.taurine * Math.pow(0.5, hoursSinceConsumption / TAURINE_HALF_LIFE);
+                    }
+                });
+                caffeinePoints.push(Math.round(activeCaffeine * 10) / 10);
+                taurinePoints.push(Math.round(activeTaurine * 10) / 10);
+            }
+
+            const currentActiveCaffeine = caffeinePoints[sliderValue];
+            const currentActiveTaurine = taurinePoints[sliderValue];
+
+            document.getElementById('stat-active-caffeine').innerText = `${currentActiveCaffeine} мг`;
+            document.getElementById('stat-active-taurine').innerText = `${currentActiveTaurine} мг`;
+
+            // Ұйқы сапасы мен қауіп деңгейін бағалау
+            const sleepStatusEl = document.getElementById('stat-sleep-status');
+            const recommendationEl = document.getElementById('caffeine-recommendation');
+
+            const overallLoad = currentActiveCaffeine + (currentActiveTaurine * 0.1);
+
+            if (overallLoad < 50) {
+                sleepStatusEl.innerText = 'Қауіпсіз';
+                sleepStatusEl.className = 'text-xs font-bold text-emerald-400 mt-1 block';
+                recommendationEl.innerHTML = `Қазіргі деңгей қауіпсіз ($${currentActiveCaffeine}$ мг кофеин, $${currentActiveTaurine}$ мг таурин). Ағзаның энергетикалық теңгерімі қалыпты, ұйқының сапасына ешқандай кері әсерін тигізбейді.`;
+            } else if (overallLoad >= 50 && overallLoad < 150) {
+                sleepStatusEl.innerText = 'Орташа жүктеме';
+                sleepStatusEl.className = 'text-xs font-bold text-amber-400 mt-1 block';
+                recommendationEl.innerHTML = `Назар аударыңыз! Ағзада белсенді заттар бар ($${currentActiveCaffeine}$ мг кофеин, $${currentActiveTaurine}$ мг таурин). Қазір ұйықтауға жатсаңыз, жүйке жүйесі толық демала алмайды, ұйқының терең фазасы $15-20\%$-ға қысқарады.`;
+            } else {
+                sleepStatusEl.innerText = 'Жоғары қауіп';
+                sleepStatusEl.className = 'text-xs font-bold text-rose-500 mt-1 block animate-pulse';
+                recommendationEl.innerHTML = `Жоғары кардио және жүйке жүктемесі! Қанда $${currentActiveCaffeine}$ мг кофеин және белсенді $${currentActiveTaurine}$ мг таурин бар. Бұл комбинация тахикардия мен ұйқысыздықты (Insomnia) тудыруы мүмкін. Келесі 5-6 сағатта кофеинсіз таза су ішу ұсынылады.`;
+            }
+
+            updateChart(caffeinePoints, taurinePoints);
+        }
+
+        // Диаграмманы салу және жаңарту
+        function updateChart(caffeineData, taurineData) {
+            const labels = Array.from({length: 16}, (_, i) => i === 0 ? 'Қазір' : `+${i} сағ`);
+            
+            if (chartInstance) {
+                chartInstance.data.datasets[0].data = caffeineData;
+                chartInstance.data.datasets[1].data = taurineData;
+                chartInstance.update();
+                return;
+            }
+
+            const ctx = document.getElementById('caffeineChart').getContext('2d');
+            chartInstance = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: 'Кофеин (мг)',
+                            data: caffeineData,
+                            borderColor: '#d97706',
+                            backgroundColor: 'rgba(217, 119, 6, 0.05)',
+                            borderWidth: 2.5,
+                            fill: true,
+                            tension: 0.3,
+                            pointBackgroundColor: '#d97706',
+                        },
+                        {
+                            label: 'Таурин (мг)',
+                            data: taurineData,
+                            borderColor: '#a855f7',
+                            backgroundColor: 'rgba(168, 85, 247, 0.05)',
+                            borderWidth: 2,
+                            fill: true,
+                            tension: 0.3,
+                            pointBackgroundColor: '#a855f7',
+                            yAxisID: 'y1',
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: true,
+                            labels: {
+                                color: '#94a3b8',
+                                font: {
+                                    size: 10
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            type: 'linear',
+                            display: true,
+                            position: 'left',
+                            title: {
+                                display: true,
+                                text: 'Кофеин (мг)',
+                                color: '#d97706',
+                                font: { size: 10 }
+                            },
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.05)'
+                            },
+                            ticks: {
+                                color: '#94a3b8',
+                                font: { size: 10 }
+                            },
+                            min: 0
+                        },
+                        y1: {
+                            type: 'linear',
+                            display: true,
+                            position: 'right',
+                            title: {
+                                display: true,
+                                text: 'Таурин (мг)',
+                                color: '#a855f7',
+                                font: { size: 10 }
+                            },
+                            grid: {
+                                drawOnChartArea: false,
+                            },
+                            ticks: {
+                                color: '#94a3b8',
+                                font: { size: 10 }
+                            },
+                            min: 0
+                        },
+                        x: {
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.05)'
+                            },
+                            ticks: {
+                                color: '#94a3b8',
+                                font: { size: 9 }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Бастапқы іске қосу
+        window.onload = function() {
+            renderProjectInfo();
+            calculateLiveValues();
+            updateUI();
+        }
+    </script>
+</body>
+</html>
